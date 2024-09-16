@@ -3,7 +3,7 @@ import WebSocket from 'ws'
 export interface IRoom {
   add(user: WebSocket): void
   remove(user: WebSocket): void
-  push(from: WebSocket, message: string): void
+  push(from: WebSocket, name: string, message: string): void
   id: string
 }
 
@@ -27,14 +27,15 @@ export default class Room implements IRoom {
     }
   }
 
-  push(from: WebSocket, message: string) {
+  push(from: WebSocket, name: string, message: string) {
     for (const user of this.users) {
       if (user !== from) {
-        user.send(from.url + ': ' + message)
+        user.send(name + ': ' + message)
       }
     }
   }
 }
 export function createRoom(id: string): IRoom {
+  console.log('Creating room:', id)
   return new Room(id)
 }

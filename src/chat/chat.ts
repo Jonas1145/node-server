@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws'
-import Room, { IRoom } from './room'
+import { IRoom } from './room'
 
 export function string(item: string | Buffer | ArrayBuffer) {
   if (typeof item === 'string') {
@@ -14,6 +14,7 @@ type MSG = {
   command: 'MSG'
   room: string
   message: string
+  name: string
 }
 
 type JOIN = {
@@ -46,7 +47,8 @@ function getMessage(message: string | Buffer): Command | undefined {
     return {
       command: 'MSG',
       room: rest[0],
-      message: rest.slice(1).join(' ')
+      name: rest[1],
+      message: rest.slice(2).join(' ')
     }
   } else if (command === 'JOIN') {
     return {
@@ -76,7 +78,7 @@ export class Chat {
     if (message.command === 'JOIN') {
       this.getRoom(message.room).add(user)
     } else if (message.command === 'MSG') {
-      this.getRoom(message.room).push(user, message.message)
+      this.getRoom(message.room).push(user, message.name, message.message)
     } else {
       this.getRoom(message.room).remove(user)
     }
