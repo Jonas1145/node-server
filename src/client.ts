@@ -1,5 +1,6 @@
 import WebSocket from 'ws'
 import readline from 'readline'
+import { Message, TextMessage } from './interfaces'
 
 class TerminalWebSocketClient {
   private ws: WebSocket
@@ -31,7 +32,12 @@ class TerminalWebSocketClient {
     this.rl.question('Enter your name: ', name => {
       this.name = name.trim()
       if (this.name) {
-        this.ws.send('JOIN room1')
+        const msg: Message = {
+          command: 'JOIN',
+          room: 'games',
+          name: this.name
+        }
+        this.ws.send(JSON.stringify(msg))
         this.promptUser()
       } else {
         console.log('Name cannot be empty. Please try again.')
@@ -78,8 +84,12 @@ class TerminalWebSocketClient {
   }
   private sendMessage(message: string) {
     if (this.ws.readyState === WebSocket.OPEN) {
-      let msg = `MSG room1 ${this.name} ${message}`
-      this.ws.send(msg)
+      let msg: TextMessage = {
+        command: 'MSG',
+        room: 'games',
+        msg: message
+      }
+      this.ws.send(JSON.stringify(msg))
     } else {
       console.error('WebSocket is not open. Message not sent.')
       this.promptUser() // Try again
