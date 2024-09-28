@@ -58,7 +58,7 @@ export class Chat {
     if (isJoinMessage(message)) {
       this.getRoom(message.room).add(user, message.name)
     } else if (isTextMessage(message)) {
-      this.getRoom(message.room).push(user, message.msg)
+      this.getRoom(message.room).push(user, message)
       // } else {
       //   this.getRoom(message.room).remove(user)
     }
@@ -66,6 +66,10 @@ export class Chat {
 
   close() {
     this.rooms = []
+  }
+
+  remove(user: WebSocket) {
+    this.rooms.forEach(room => room.remove(user))
   }
 
   private getRoom(id: string): IRoom {

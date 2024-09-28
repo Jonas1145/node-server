@@ -11,4 +11,8 @@ wss.on('connection', (ws: WebSocket) => {
   ws.on('message', (message: WebSocket.RawData) => {
     chat.msg(ws, message.toString())
   })
+  ws.on('close', () => {
+    console.log('Client disconnected')
+    chat.remove(ws)
+  })
 })
