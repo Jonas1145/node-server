@@ -1,6 +1,6 @@
 import WebSocket from 'ws'
 import readline from 'readline'
-import { Message, TextMessage } from './interfaces'
+import { isModeMessage, isTextMessage, Message, TextMessage } from './chat/interfaces'
 
 class TerminalWebSocketClient {
   private ws: WebSocket
@@ -46,12 +46,18 @@ class TerminalWebSocketClient {
     })
   }
 
-  private onMessage(data: WebSocket.RawData) {
+  private onMessage(data: string) {
     process.stdout.clearLine(0)
     process.stdout.cursorTo(0)
-    console.log(
-      TerminalWebSocketClient.OTHER_USER_COLOR + data.toString() + TerminalWebSocketClient.RESET
-    )
+    const msg = JSON.parse(data)
+    if (isTextMessage(msg)) {
+      console.log(
+        TerminalWebSocketClient.OTHER_USER_COLOR + msg.msg + TerminalWebSocketClient.RESET
+      )
+    } else if (isModeMessage(msg)) {
+      console.clear()
+      console.log('new Game Mode: ' + msg.mode)
+    }
     this.displayPrompt()
   }
 
@@ -97,4 +103,4 @@ class TerminalWebSocketClient {
   }
 }
 // Usage
-const client = new TerminalWebSocketClient('ws://localhost:8080')
+new TerminalWebSocketClient('ws://172.21.213.199:8080')

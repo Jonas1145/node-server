@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws'
 import { IRoom } from './room'
-import { isJoinMessage, isTextMessage, Message } from '../interfaces'
+import { isJoinMessage, isModeMessage, isTextMessage, Message, ModeMessage } from './interfaces'
 
 export function string(item: string | Buffer | ArrayBuffer) {
   if (typeof item === 'string') {
@@ -11,28 +11,6 @@ export function string(item: string | Buffer | ArrayBuffer) {
 
   return Buffer.from(item).toString()
 }
-// type MSG = {
-//   command: 'MSG'
-//   room: string
-//   message: string
-// }
-//
-// type JOIN = {
-//   command: 'JOIN'
-//   room: string
-//   name: string
-// }
-//
-// type LEAVE = {
-//   command: 'LEAVE'
-//   room: string
-// }
-
-// type Command = MSG | JOIN | LEAVE
-
-// function isCommand(msg: string): boolean {
-//   return msg === 'MSG' || msg === 'JOIN' || msg === 'LEAVE'
-// }
 
 function getMessage(message: string | Buffer): Message | undefined {
   if (typeof message === 'object') {
@@ -44,9 +22,11 @@ function getMessage(message: string | Buffer): Message | undefined {
 
 export class Chat {
   private rooms: IRoom[]
+  private gameMode: number
 
   constructor(private createRoom: (id: string) => IRoom) {
     this.rooms = []
+    this.gameMode = 0
   }
 
   // handle messages
@@ -59,8 +39,12 @@ export class Chat {
       this.getRoom(message.room).add(user, message.name)
     } else if (isTextMessage(message)) {
       this.getRoom(message.room).push(user, message)
-      // } else {
-      //   this.getRoom(message.room).remove(user)
+    } else if (isModeMessage(message)) {
+      this.rooms.forEach(room => {
+        this.gameMode = message.mode
+        console.log(this.gameMode)
+        room.changeMode(message)
+      })
     }
   }
 

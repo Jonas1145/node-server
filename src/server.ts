@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws'
-import { Chat } from './chat/chat'
 import { createRoom } from './chat/room'
+import { Chat } from './chat/chat'
 
 const chat = new Chat(createRoom)
 

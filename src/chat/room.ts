@@ -1,10 +1,11 @@
 import WebSocket from 'ws'
-import { MemberListMessage, TextMessage } from '../interfaces'
+import { MemberListMessage, ModeMessage, TextMessage } from './interfaces'
 
 export interface IRoom {
   add(ws: WebSocket, name: string): void
   remove(ws: WebSocket): void
   push(from: WebSocket, message: TextMessage): void
+  changeMode(message: ModeMessage): void
   id: string
 }
 export interface User {
@@ -30,6 +31,7 @@ export default class Room implements IRoom {
     }
   }
 
+  // todo: send current gamemode in case of reconnect
   add(ws: WebSocket, name: string) {
     if (!this.users.some(user => user.ws === ws)) {
       console.log(name)
@@ -66,6 +68,12 @@ export default class Room implements IRoom {
       members: this.users.filter(u => u.name !== 'admin').map(user => user.name)
     }
     this.getAdmin()?.send(JSON.stringify(memberListResponse))
+  }
+
+  changeMode(message: ModeMessage) {
+    for (const user of this.users) {
+      user.ws.send(JSON.stringify(message))
+    }
   }
 }
 
