@@ -12,6 +12,7 @@ export type TextMessage = {
   room: string
   msg: string
   name?: string
+  time?: number
 }
 
 // outgoing messages

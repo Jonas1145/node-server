@@ -20,13 +20,17 @@ function getMessage(message: string | Buffer): Message | undefined {
   return command
 }
 
+const gameModesWithTimer = [2]
+
 export class Chat {
   private rooms: IRoom[]
   private gameMode: number
+  private startTime: number
 
   constructor(private createRoom: (id: string) => IRoom) {
     this.rooms = []
-    this.gameMode = 0
+    this.gameMode = 1
+    this.startTime = 0
   }
 
   // handle messages
@@ -37,11 +41,23 @@ export class Chat {
     }
     if (isJoinMessage(message)) {
       this.getRoom(message.room).add(user, message.name)
+      this.sendCurrentMode(user)
     } else if (isTextMessage(message)) {
-      this.getRoom(message.room).push(user, message)
+      let msg = message
+      if (gameModesWithTimer.includes(this.gameMode)) {
+        if (this.startTime === 0) {
+          msg = { ...message, time: 0 }
+          this.startTime = Date.now()
+        }
+        {
+          msg = { ...message, time: Date.now() - this.startTime }
+        }
+      }
+      this.getRoom(message.room).push(user, msg)
     } else if (isModeMessage(message)) {
       this.rooms.forEach(room => {
         this.gameMode = message.mode
+        this.startTime = 0
         console.log(this.gameMode)
         room.changeMode(message)
       })
@@ -63,5 +79,13 @@ export class Chat {
       this.rooms.push(room)
     }
     return room
+  }
+
+  private sendCurrentMode(user: WebSocket) {
+    const message: ModeMessage = {
+      command: 'MODE',
+      mode: this.gameMode
+    }
+    user.send(JSON.stringify(message))
   }
 }
