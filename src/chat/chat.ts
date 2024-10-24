@@ -53,7 +53,7 @@ export class Chat {
           msg = { ...message, time: Date.now() - this.startTime }
         }
       }
-      this.getRoom(message.room).push(user, msg)
+      this.getRoom(message.room).push(user, msg, this.gameMode)
     } else if (isModeMessage(message)) {
       this.rooms.forEach(room => {
         this.gameMode = message.mode
