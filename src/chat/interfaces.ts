@@ -27,7 +27,24 @@ export type ModeMessage = {
   mode: number
 }
 
-export type Message = JoinMessage | TextMessage | MemberListMessage | ModeMessage
+export type MindMessage = {
+  command: 'MIND'
+  level: number
+  room: string
+}
+
+export type MindNumberMessage = {
+  command: 'MIND'
+  numbers: number[]
+}
+
+export type Message =
+  | JoinMessage
+  | TextMessage
+  | MemberListMessage
+  | ModeMessage
+  | MindMessage
+  | MindNumberMessage
 
 //typeguard functions
 export function isJoinMessage(message: Message): message is JoinMessage {
@@ -44,4 +61,8 @@ export function isMemberListMessage(message: Message): message is MemberListMess
 
 export function isModeMessage(message: Message): message is ModeMessage {
   return message.command === 'MODE'
+}
+
+export function isMindMessage(message: Message): message is MindMessage {
+  return message.command === 'MIND'
 }

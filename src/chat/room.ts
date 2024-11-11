@@ -1,11 +1,12 @@
 import WebSocket from 'ws'
-import { MemberListMessage, ModeMessage, TextMessage } from './interfaces'
+import { MemberListMessage, MindMessage, ModeMessage, TextMessage } from './interfaces'
 
 export interface IRoom {
   add(ws: WebSocket, name: string): void
   remove(ws: WebSocket): void
   push(from: WebSocket, message: TextMessage, mode?: number): void
   changeMode(message: ModeMessage): void
+  pushMind(message: MindMessage): void
   id: string
 }
 export interface User {
@@ -34,6 +35,11 @@ export default class Room implements IRoom {
         return this.users[i].ws
       }
     }
+  }
+
+  // filter admin out of member list
+  getMembers(): User[] {
+    return this.users.filter(user => user.name !== adminName)
   }
 
   // todo: send current gamemode in case of reconnect
@@ -107,9 +113,34 @@ export default class Room implements IRoom {
       user.ws.send(JSON.stringify(message))
     }
   }
+
+  pushMind(message: MindMessage) {
+    const members = this.getMembers()
+    const numbers = createMindNumbers(members.length, message.level, 100)
+    members.forEach((user, idx) => {
+      const userNumbers = numbers.slice(idx * message.level, (idx + 1) * message.level)
+      const sortedNumbers = userNumbers.sort((a, b) => a - b)
+      user.ws.send(JSON.stringify({ command: 'MIND', numbers: sortedNumbers }))
+    })
+  }
 }
 
 export function createRoom(id: string): IRoom {
   console.log('Creating room:', id)
   return new Room(id)
+}
+
+// create array of length ammount * users with unique random numbers between 0 and max
+function createMindNumbers(users: number, level: number, max: number): number[] {
+  const numbers: number[] = []
+  const ammount = level * users
+
+  for (let i = 0; i < ammount; i++) {
+    let number = Math.floor(Math.random() * max)
+    while (numbers.includes(number)) {
+      number = Math.floor(Math.random() * max)
+    }
+    numbers.push(number)
+  }
+  return numbers
 }

@@ -1,6 +1,14 @@
 import { WebSocket } from 'ws'
 import { IRoom } from './room'
-import { isJoinMessage, isModeMessage, isTextMessage, Message, ModeMessage } from './interfaces'
+import {
+  isJoinMessage,
+  isMindMessage,
+  isModeMessage,
+  isTextMessage,
+  Message,
+  MindMessage,
+  ModeMessage
+} from './interfaces'
 
 export function string(item: string | Buffer | ArrayBuffer) {
   if (typeof item === 'string') {
@@ -61,6 +69,8 @@ export class Chat {
         console.log(this.gameMode)
         room.changeMode(message)
       })
+    } else if (isMindMessage(message)) {
+      this.handleMindMessage(message)
     }
   }
 
@@ -87,5 +97,9 @@ export class Chat {
       mode: this.gameMode
     }
     user.send(JSON.stringify(message))
+  }
+
+  private handleMindMessage(message: MindMessage) {
+    this.getRoom(message.room).pushMind(message)
   }
 }
