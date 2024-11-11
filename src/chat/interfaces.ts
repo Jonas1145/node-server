@@ -27,15 +27,21 @@ export type ModeMessage = {
   mode: number
 }
 
-export type MindMessage = {
-  command: 'MIND'
+export type StepMessage = {
+  command: 'STEP'
   level: number
   room: string
 }
 
-export type MindNumberMessage = {
+export type MindMessage = {
   command: 'MIND'
   numbers: number[]
+}
+
+export type WavelengthMessage = {
+  command: 'WAVELENGTH'
+  percent?: number
+  word?: string
 }
 
 export type Message =
@@ -43,8 +49,9 @@ export type Message =
   | TextMessage
   | MemberListMessage
   | ModeMessage
+  | StepMessage
   | MindMessage
-  | MindNumberMessage
+  | WavelengthMessage
 
 //typeguard functions
 export function isJoinMessage(message: Message): message is JoinMessage {
@@ -63,6 +70,14 @@ export function isModeMessage(message: Message): message is ModeMessage {
   return message.command === 'MODE'
 }
 
+export function isStepMessage(message: Message): message is StepMessage {
+  return message.command === 'STEP'
+}
+
 export function isMindMessage(message: Message): message is MindMessage {
   return message.command === 'MIND'
+}
+
+export function isWavelengthMessage(message: Message): message is WavelengthMessage {
+  return message.command === 'WAVELENGTH'
 }

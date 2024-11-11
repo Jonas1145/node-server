@@ -4,10 +4,12 @@ import {
   isJoinMessage,
   isMindMessage,
   isModeMessage,
+  isStepMessage,
   isTextMessage,
   Message,
   MindMessage,
-  ModeMessage
+  ModeMessage,
+  StepMessage
 } from './interfaces'
 
 export function string(item: string | Buffer | ArrayBuffer) {
@@ -69,8 +71,8 @@ export class Chat {
         console.log(this.gameMode)
         room.changeMode(message)
       })
-    } else if (isMindMessage(message)) {
-      this.handleMindMessage(message)
+    } else if (isStepMessage(message)) {
+      this.handleStepMessage(message)
     }
   }
 
@@ -99,7 +101,11 @@ export class Chat {
     user.send(JSON.stringify(message))
   }
 
-  private handleMindMessage(message: MindMessage) {
-    this.getRoom(message.room).pushMind(message)
+  private handleStepMessage(message: StepMessage) {
+    if (this.gameMode === 9) {
+      this.getRoom(message.room).pushMind(message)
+    } else if (this.gameMode === 10) {
+      this.getRoom(message.room).pushWavelength(message)
+    }
   }
 }

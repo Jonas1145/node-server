@@ -1,12 +1,13 @@
 import WebSocket from 'ws'
-import { MemberListMessage, MindMessage, ModeMessage, TextMessage } from './interfaces'
+import { MemberListMessage, MindMessage, ModeMessage, StepMessage, TextMessage } from './interfaces'
 
 export interface IRoom {
   add(ws: WebSocket, name: string): void
   remove(ws: WebSocket): void
   push(from: WebSocket, message: TextMessage, mode?: number): void
   changeMode(message: ModeMessage): void
-  pushMind(message: MindMessage): void
+  pushMind(message: StepMessage): void
+  pushWavelength(message: StepMessage): void
   id: string
 }
 export interface User {
@@ -114,7 +115,7 @@ export default class Room implements IRoom {
     }
   }
 
-  pushMind(message: MindMessage) {
+  pushMind(message: StepMessage) {
     const members = this.getMembers()
     const numbers = createMindNumbers(members.length, message.level, 100)
     members.forEach((user, idx) => {
@@ -122,6 +123,18 @@ export default class Room implements IRoom {
       const sortedNumbers = userNumbers.sort((a, b) => a - b)
       user.ws.send(JSON.stringify({ command: 'MIND', numbers: sortedNumbers }))
     })
+  }
+
+  pushWavelength(message: StepMessage) {
+    const members = this.getMembers()
+    const percent = Math.floor(Math.random() * 100)
+    if ('info' in message) {
+      this.getAdmin()?.send(
+        JSON.stringify({ command: 'WAVELENGTH', percent: percent, word: message.info })
+      )
+      members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1, word: message.info }))
+      members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent, word: '' }))
+    }
   }
 }
 
