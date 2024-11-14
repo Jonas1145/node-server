@@ -41,7 +41,6 @@ export type MindMessage = {
 export type WavelengthMessage = {
   command: 'WAVELENGTH'
   percent?: number
-  word?: string
 }
 
 export type Message =

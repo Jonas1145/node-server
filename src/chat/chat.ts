@@ -2,12 +2,10 @@ import { WebSocket } from 'ws'
 import { IRoom } from './room'
 import {
   isJoinMessage,
-  isMindMessage,
   isModeMessage,
   isStepMessage,
   isTextMessage,
   Message,
-  MindMessage,
   ModeMessage,
   StepMessage
 } from './interfaces'
@@ -105,7 +103,7 @@ export class Chat {
     if (this.gameMode === 9) {
       this.getRoom(message.room).pushMind(message)
     } else if (this.gameMode === 10) {
-      this.getRoom(message.room).pushWavelength(message)
+      this.getRoom(message.room).pushWavelength()
     }
   }
 }

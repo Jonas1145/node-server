@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import { MemberListMessage, MindMessage, ModeMessage, StepMessage, TextMessage } from './interfaces'
+import { MemberListMessage, ModeMessage, StepMessage, TextMessage } from './interfaces'
 
 export interface IRoom {
   add(ws: WebSocket, name: string): void
@@ -7,7 +7,7 @@ export interface IRoom {
   push(from: WebSocket, message: TextMessage, mode?: number): void
   changeMode(message: ModeMessage): void
   pushMind(message: StepMessage): void
-  pushWavelength(message: StepMessage): void
+  pushWavelength(): void
   id: string
 }
 export interface User {
@@ -125,16 +125,12 @@ export default class Room implements IRoom {
     })
   }
 
-  pushWavelength(message: StepMessage) {
+  pushWavelength() {
     const members = this.getMembers()
     const percent = Math.floor(Math.random() * 100)
-    if ('info' in message) {
-      this.getAdmin()?.send(
-        JSON.stringify({ command: 'WAVELENGTH', percent: percent, word: message.info })
-      )
-      members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1, word: message.info }))
-      members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent, word: '' }))
-    }
+    this.getAdmin()?.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+    members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
+    members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
   }
 }
 
