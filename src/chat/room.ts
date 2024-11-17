@@ -127,10 +127,13 @@ export default class Room implements IRoom {
 
   pushWavelength() {
     const members = this.getMembers()
-    const percent = Math.floor(Math.random() * 100)
+    const percent = Math.floor(Math.random() * 21) * 5
     this.getAdmin()?.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
-    members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
-    members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+
+    if (members.length >= 2) {
+      members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
+      members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+    }
   }
 }
 
