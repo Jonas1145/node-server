@@ -104,6 +104,8 @@ export class Chat {
       this.getRoom(message.room).pushMind(message)
     } else if (this.gameMode === 10) {
       this.getRoom(message.room).pushWavelength()
+    } else if (this.gameMode === 4 ){
+      this.getRoom(message.room).pushStep(message.level.toString())
     }
   }
 }

@@ -8,6 +8,7 @@ export interface IRoom {
   changeMode(message: ModeMessage): void
   pushMind(message: StepMessage): void
   pushWavelength(): void
+  pushStep(lvl: string) : void
   id: string
 }
 export interface User {
@@ -116,24 +117,42 @@ export default class Room implements IRoom {
   }
 
   pushMind(message: StepMessage) {
-    const members = this.getMembers()
-    const numbers = createMindNumbers(members.length, message.level, 100)
-    members.forEach((user, idx) => {
-      const userNumbers = numbers.slice(idx * message.level, (idx + 1) * message.level)
-      const sortedNumbers = userNumbers.sort((a, b) => a - b)
-      user.ws.send(JSON.stringify({ command: 'MIND', numbers: sortedNumbers }))
-    })
+ const members = this.getMembers()
+  const numbers = createMindNumbers(members.length, message.level, 100)
+    console.log(
+      'Lvl: ', message.level, '_________________'
+    )
+  members.forEach((user, idx) => {
+    const userNumbers = numbers.slice(idx * message.level, (idx + 1) * message.level)
+    const sortedNumbers = userNumbers.sort((a, b) => a - b)
+      console.log(
+      user.name, ': ', sortedNumbers
+      )
+    user.ws.send(JSON.stringify({ command: 'MIND', numbers: sortedNumbers }))
+  })
   }
 
   pushWavelength() {
     const members = this.getMembers()
-    const percent = Math.floor(Math.random() * 21) * 5
+    const percent = Math.floor(Math.random() * 21)* 5
     this.getAdmin()?.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
-
     if (members.length >= 2) {
-      members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
-      members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+      try {
+
+    members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
+    members[1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+      } catch {
+        console.error('ws not found')
+      } 
     }
+  }
+
+
+  pushStep(lvl: string) {
+ const members = this.getMembers()
+  members.forEach((user) => {
+    user.ws.send(JSON.stringify({ command: 'STEP', level: lvl }))
+  })
   }
 }
 
