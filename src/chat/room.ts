@@ -24,6 +24,7 @@ export default class Room implements IRoom {
   private team1: WebSocket[]
   private team2: WebSocket[]
   private teams = ['team1', 'team2']
+  private isfirstTeamsTurn = true
 
   constructor(id: string) {
     this.users = []
@@ -136,7 +137,25 @@ export default class Room implements IRoom {
     const members = this.getMembers()
     const percent = Math.floor(Math.random() * 21)* 5
     this.getAdmin()?.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
-    if (members.length >= 2) {
+    if (members.length >= 4) {
+      try {
+        let player = 0
+        let passive = 2
+        if (!this.isfirstTeamsTurn) {
+          player = 2
+          passive = 0
+        }
+
+    members[player].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
+    members[player+1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: percent }))
+    members[passive].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -2 }))
+    members[passive+1].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -2 }))
+    this.isfirstTeamsTurn = !this.isfirstTeamsTurn
+    } catch {
+        console.error('ws not found')
+      }
+      }
+     else if (members.length >= 2) {
       try {
 
     members[0].ws.send(JSON.stringify({ command: 'WAVELENGTH', percent: -1 }))
